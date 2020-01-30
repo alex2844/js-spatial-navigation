@@ -1,0 +1,19 @@
+{
+	"name": "js-spatial-navigation",
+	"version": "1.0.0",
+	"description": "",
+	"main": "module.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/alex2844/js-spatial-navigation.git"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"author": {
+		"name": "Alex Smith",
+		"email": "alex.smith2844@gmail.com",
+		"website": "https://me.qwedl.com/",
+		"github": "https://github.com/alex2844"
+	}
+}
