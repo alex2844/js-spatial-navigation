@@ -754,6 +754,9 @@
 		},
 		getElements: function(sectionId) {
 			return getSectionNavigableElements(sectionId || getSectionId(getCurrentFocusedElement()));
+		},
+		getSections: function() {
+			return _sections;
 		}
 	}
 	window.SpatialNavigation = SpatialNavigation;
