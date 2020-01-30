@@ -20,67 +20,34 @@ Examples
 
 ```html
 <head>
-  <script src="https://luke-chang.github.io/js-spatial-navigation/spatial_navigation.js"></script>
-  <script>
-    window.addEventListener('load', function() {
-      // Initialize
-      SpatialNavigation.init();
-
-      // Define navigable elements (anchors and elements with "focusable" class).
-      SpatialNavigation.add({
-        selector: 'a, .focusable'
-      });
-
-      // Make the *currently existing* navigable elements focusable.
-      SpatialNavigation.makeFocusable();
-
-      // Focus the first navigable element.
-      SpatialNavigation.focus();
-    });
-  </script>
-  <style>
-    /* Add style to the focused elements */
-    :focus {
-      outline: 2px solid red;
-    }
-  </style>
+	<script src="https://alex2844.github.io/js-spatial-navigation/spatial_navigation.min.js"></script>
+	<script>
+		window.addEventListener('load', function() {
+			SpatialNavigation.init([
+				{ selector: 'a, .focusable' }
+			]);
+		});
+	</script>
+	<style>
+		:focus { outline: 2px solid red; }
+	</style>
 </head>
 <body>
-  <a href="#">Link 1</a>
-  <a href="#">Link 2</a>
-  <div class="focusable">Div 1</div>
-  <div class="focusable">Div 2</div>
+	<a href="#">Link 1</a>
+	<a href="#">Link 2</a>
+	<div class="focusable">Div 1</div>
+	<div class="focusable">Div 2</div>
 </body>
 ```
-
-### Integrate jQuery
-
-Although SpatialNavigation is a standalone (pure-javascript-based) library, it can work perfectly with jQuery.
-
-```html
-<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
-<script>
-  $.getScript('https://luke-chang.github.io/js-spatial-navigation/spatial_navigation.js', function() {
-    $('a, .focusable')
-      .SpatialNavigation()
-      .focus(function() { $(this).css('outline', '2px solid red'); })
-      .blur(function() { $(this).css('outline', ''); })
-      .first()
-      .focus();
-  });
-</script>
-```
-
-### More Demonstrations
-
-+ [Demonstrations](https://luke-chang.github.io/js-spatial-navigation/demo/)
 
 Documentation
 -------------
 
 ### API Reference
 
-#### `SpatialNavigation.init()`
+#### `SpatialNavigation.init([arrConfig])`
+
+  + `arrConfig`: (optional) [Configuration](#configuration)
 
 Initializes SpatialNavigation and binds event listeners to the global object. It is a synchronous function, so you don't need to await ready state. Calling `init()` more than once is possible since SpatialNavigation internally prevents it from reiterating the initialization.
 
@@ -174,6 +141,26 @@ Assigns the specified section to be the default section. It will be used as a su
 
 Calling this method without the argument can reset the default section to `undefined`.
 
+#### `SpatialNavigation.getElement()`
+
+Get current focused element.
+
+#### `SpatialNavigation.getSection([element])`
+
+  + `element`: (optional) DOM element
+
+Get a section for an element.
+
+#### `SpatialNavigation.getElements([sectionId])`
+
+  + `sectionId`: (optional) String
+
+Get all elements from a section.
+
+#### `SpatialNavigation.getSections()`
+
+Get all sections.
+
 ### Configuration
 
 Configuration is a plain object with configurable properties.
@@ -185,12 +172,8 @@ Following is an example with default values.
 ```js
 {
   selector: '',
-  straightOnly: false,
-  straightOverlapThreshold: 0.5,
-  rememberSource: false,
   disabled: false,
   defaultElement: '',
-  enterTo: '',
   leaveFor: null,
   restrict: 'self-first',
   tabIndexIgnoreList: 'a, input, select, textarea, button, iframe, [contentEditable=true]',
@@ -205,29 +188,6 @@ Following is an example with default values.
 
 Elements matching `selector` are regarded as navigable elements in SpatialNavigation. However, hidden or disabled elements are ignored as they can not be focused in any way.
 
-#### `straightOnly`
-
-  + Type: Boolean
-  + Default: `false`
-
-When it is `true`, only elements in the straight (vertical or horizontal) direction will be navigated. i.e. SpatialNavigation ignores elements in the oblique directions.
-
-#### `straightOverlapThreshold`
-
-  + Type: Number in the range [0, 1]
-  + Default: `0.5`
-
-This threshold is used to determine whether an element is considered in the straight (vertical or horizontal) directions. Valid number is between 0 to 1.0.
-
-Setting it to 0.3 means that an element is counted in the straight directions only if it overlaps the straight area at least 0.3x of its total area.
-
-#### `rememberSource`
-
-  + Type: Boolean
-  + Default: `false`
-
-When it is `true`, the previously focused element will have higher priority to be chosen as the next candidate.
-
 #### `disabled`
 
   + Type: Boolean
@@ -241,19 +201,6 @@ When it is `true`, elements defined in this section are unnavigable. This proper
   + Default: `''`
 
 When a section is specified to be the next focused target, e.g. [`focus('some-section-id')`](#spatialnavigationfocussectionidselector-silent) is called, the first element matching `defaultElement` within this section will be chosen first.
-
-#### `enterTo`
-
-  + Type: `''`, `'last-focused'` or `'default-element'`
-  + Default: `''`
-
-If the focus comes from another section, you can define which element in this section should be focused first.
-
-`'last-focused'` indicates the last focused element before we left this section last time. If this section has never been focused yet, the default element (if any) will be chosen next.
-
-`'default-element'` indicates the element defined in [`defaultElement`](#defaultelement).
-
-`''` (empty string) implies following the original rule without any change.
 
 #### `leaveFor`
 
@@ -302,7 +249,7 @@ SpatialNavigation supports HTML `data-*` attributes as follows:
   + `data-sn-up`
   + `data-sn-down`
 
-They specifies which element should be focused next when a user presses the corresponding arrow key. This setting overrides any other settings in [`enterTo`](#enterto) and [`leaveFor`](#leavefor).
+They specifies which element should be focused next when a user presses the corresponding arrow key. This setting overrides any other settings in [`leaveFor`](#leavefor).
 
 The value of each attribute should be a [Selector](#selector-1) and only accepts strings (the **valid selector string** and **`@` syntax** described below) for now. Any of these attributes can be omitted, and SpatialNavigation will follow the original rule to navigate.
 
@@ -312,10 +259,9 @@ The value of each attribute should be a [Selector](#selector-1) and only accepts
 
 The type "Selector" can be any of the following types.
 
-* a valid selector string for "querySelectorAll" or jQuery (if it exists)
+* a valid selector string for "querySelectorAll"
 * a [NodeList](https://developer.mozilla.org/en-US/docs/Web/API/NodeList) or an array containing DOM elements
 * a single DOM element
-* a jQuery object
 * a string `'@<sectionId>'` to indicate the specified section (e.g. `'@test-section'` indicates the section whose id is `test-section`.
 * a string `'@'` to indicate the default section
 
@@ -326,8 +272,6 @@ The type "Selector" can be any of the following types.
 Following custom events are triggered by SpatialNavigation. You can bind them by `addEventListener()`. Some events are marked **"cancelable"**, which means you can cancel them by `Event.preventDefault()`, as usual.
 
 Focus-related events are also wrappers of the native `focus`/`blur` events, so they are triggered as well even SpatialNavigation is not involved. In this case, some properties in `event.detail` may be omitted. This kind of properties is marked **"Navigation Only"** below.
-
-**Note:** If you bind events via jQuery's [`.on()`](http://api.jquery.com/on/) API, you must change to `event.originalEvent.detail` to access the `detail` objects.
 
 #### `sn:willmove`
 
@@ -446,4 +390,4 @@ Chrome 5, Firefox 12, IE 9, Opera 11.5, Safari 5
 License
 -------
 
-Copyright (c) 2017 Luke Chang. Licensed under the MPL 2.0.
+Copyright (c) 2017 alex2844 and Luke Chang. Licensed under the MPL 2.0.

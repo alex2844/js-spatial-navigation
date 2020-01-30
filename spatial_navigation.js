@@ -212,14 +212,6 @@
 					return true;
 				else if (result === null)
 					return !!fireNavigatefailed(currentFocusedElement, direction);
-				var enterToElement;
-				switch (_sections[nextSectionId].enterTo) {
-					case 'default-element':
-						enterToElement = getSectionDefaultElement(nextSectionId);
-					break;
-				}
-				if (enterToElement)
-					next = enterToElement;
 			}
 			if (!next.closest('aside')) {
 				var p = getRect(next);
@@ -583,7 +575,8 @@
 				window.addEventListener('keyup', onKeyUp);
 				window.addEventListener('focus', onFocus, true);
 				window.addEventListener('blur', onBlur, true);
-				if ((_ready = true) && arr) {
+				_ready = true;
+				if (arr) {
 					res = arr.map(function(obj) {
 						return SpatialNavigation.add(obj);
 					});
@@ -685,6 +678,22 @@
 		resume: function() {
 			_pause = false;
 		},
+		move: function(direction, selector) {
+			direction = direction.toLowerCase();
+			var elem = (selector ? parseSelector(selector)[0] : getCurrentFocusedElement());
+			if (!elem)
+				return false;
+			var sectionId = getSectionId(elem);
+			if (!sectionId)
+				return false;
+			if (!fireEvent(elem, 'willmove', {
+				direction: direction,
+				sectionId: sectionId,
+				cause: 'api'
+			}))
+				return false;
+			return focusNext(direction, elem, sectionId);
+		},
 		makeFocusable: function(sectionId) {
 			var doMakeFocusable = function(section) {
 				var tabIndexIgnoreList = ((section.tabIndexIgnoreList !== undefined) ? section.tabIndexIgnoreList : GlobalConfig.tabIndexIgnoreList);
@@ -736,6 +745,15 @@
 				throw new Error('Section "' + sectionId + '" doesn\'t exist!');
 			else
 				_defaultSectionId = sectionId;
+		},
+		getElement: function() {
+			return getCurrentFocusedElement();
+		},
+		getSection: function(elem) {
+			return getSectionId((elem || getCurrentFocusedElement()));
+		},
+		getElements: function(sectionId) {
+			return getSectionNavigableElements(sectionId || getSectionId(getCurrentFocusedElement()));
 		}
 	}
 	window.SpatialNavigation = SpatialNavigation;
