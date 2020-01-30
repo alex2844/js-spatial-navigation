@@ -1,0 +1,13 @@
+theme: jekyll-theme-primer
+
+github:
+    private: false
+    license:
+        name: MIT
+    source:
+        branch: "master"
+        path: "/"
+    repository_url: "https://github.com/alex2844/js-spatial-navigation"
+  
+title: js-spatial-navigation
+description: A javascript-based implementation of Spatial Navigation.
