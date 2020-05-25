@@ -11,6 +11,7 @@
 	var _idPool = 0,
 		_ready = false,
 		_pause = false,
+		_timeStamp = null,
 		_sections = {},
 		_sectionCount = 0,
 		_defaultSectionId = '',
@@ -153,7 +154,37 @@
 	}
 	function fireEvent(elem, type, details, cancelable) {
 		var evt = document.createEvent('CustomEvent');
-		evt.initCustomEvent('sn:'+type, true, ((arguments.length < 4) ? true : cancelable), details);
+		if (type == 'contextmenu') {
+			evt.initCustomEvent(type, true, ((arguments.length < 4) ? true : cancelable), details);
+			var rect = elem.getBoundingClientRect();
+			Object.defineProperties(evt, {
+				layerX: {
+					value: elem.clientLeft + 25,
+					enumerable: true
+				},
+				layerY: {
+					value: elem.clientTop,
+					enumerable: true
+				},
+				clientX: {
+					value: rect.x,
+					enumerable: true
+				},
+				clientY: {
+					value: rect.y + rect.height,
+					enumerable: true
+				},
+				pageX: {
+					value: rect.x,
+					enumerable: true
+				},
+				pageY: {
+					value: rect.y,
+					enumerable: true
+				}
+			});
+		}else
+			evt.initCustomEvent('sn:'+type, true, ((arguments.length < 4) ? true : cancelable), details);
 		return elem.dispatchEvent(evt);
 	}
 	function focusChanged(elem, sectionId) {
@@ -495,8 +526,18 @@
 			'40': 'down'
 		}[evt.keyCode];
 		if (!direction) {
-			if ((evt.keyCode == 13) && (currentFocusedElement = getCurrentFocusedElement()) && getSectionId(currentFocusedElement) && !fireEvent(currentFocusedElement, 'enter-down'))
-				return preventDefault();
+			if (evt.keyCode == 13) {
+				if ((currentFocusedElement = getCurrentFocusedElement()) && getSectionId(currentFocusedElement)) {
+					if (_timeStamp == null)
+						_timeStamp = evt.timeStamp;
+					else if (_timeStamp && ((evt.timeStamp - _timeStamp) > 1500)) {
+						fireEvent(currentFocusedElement, 'contextmenu');
+						_timeStamp = 0;
+					}
+					fireEvent(currentFocusedElement, 'enter-down');
+					return preventDefault();
+				}
+			}
 			return;
 		}
 		if (!(currentFocusedElement = getCurrentFocusedElement())) {
@@ -527,10 +568,14 @@
 			return;
 		if (!_pause && _sectionCount && (evt.keyCode == 13)) {
 			var currentFocusedElement = getCurrentFocusedElement();
-			if (currentFocusedElement && getSectionId(currentFocusedElement) && !fireEvent(currentFocusedElement, 'enter-up')) {
+			if (currentFocusedElement && getSectionId(currentFocusedElement)) {
+				if (_timeStamp != 0)
+					currentFocusedElement.click();
+				fireEvent(currentFocusedElement, 'enter-up');
 				evt.preventDefault();
 				evt.stopPropagation();
 			}
+			_timeStamp = null;
 		}
 	}
 	function onFocus(evt) {
