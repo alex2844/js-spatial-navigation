@@ -804,7 +804,8 @@
 			return _sections;
 		}
 	}
-	window.SpatialNavigation = SpatialNavigation;
+	if (!('SpatialNavigation' in window))
+		window.SpatialNavigation = SpatialNavigation;
 	if (typeof module === 'object')
 		module.exports = SpatialNavigation;
 })();
