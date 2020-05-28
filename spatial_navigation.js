@@ -622,9 +622,9 @@
 				window.addEventListener('blur', onBlur, true);
 				_ready = true;
 				if (arr) {
-					res = arr.map(function(obj) {
-						return SpatialNavigation.add(obj);
-					});
+					for (var id in arr) {
+						res.push(SpatialNavigation.add(id, arr[id]));
+					}
 					SpatialNavigation.makeFocusable();
 					SpatialNavigation.focus();
 				}
