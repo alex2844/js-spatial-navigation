@@ -596,6 +596,10 @@
 					fireEvent(evt.target, 'focused', focusProperties, false);
 					focusChanged(evt.target, sectionId);
 				}
+			}else if (evt.relatedTarget) {
+				_duringFocusChange = true;
+				evt.relatedTarget.focus();
+				_duringFocusChange = false;
 			}
 		}
 	}
